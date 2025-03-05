@@ -9,7 +9,11 @@ interface BettingSliderProps {
   setSliderValue: (value: number) => void;
 }
 
-function BettingSlider({ balance, sliderValue, setSliderValue }: BettingSliderProps) {
+function BettingSlider({
+  balance,
+  sliderValue,
+  setSliderValue,
+}: BettingSliderProps) {
   const sliderRef = useRef<HTMLDivElement>(null);
   const [sliderWidth, setSliderWidth] = useState(0);
 
@@ -19,13 +23,16 @@ function BettingSlider({ balance, sliderValue, setSliderValue }: BettingSliderPr
     }
   }, []);
 
+  // Drag Handler
   const handleDrag = (_event: DragEvent, info: PanInfo) => {
-    const newX = info.point.x - (sliderRef.current?.getBoundingClientRect().left ?? 0);
+    const newX =
+      info.point.x - (sliderRef.current?.getBoundingClientRect().left ?? 0);
     const clampedX = Math.max(0, Math.min(newX, sliderWidth));
     const newValue = Math.round((clampedX / sliderWidth) * balance);
     setSliderValue(newValue);
   };
 
+  // Input Change Handler
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = Number(event.target.value);
     setSliderValue(newValue);
@@ -54,7 +61,7 @@ function BettingSlider({ balance, sliderValue, setSliderValue }: BettingSliderPr
             className="absolute h-8 w-6 bg-blue-400 rounded-md flex justify-center items-center cursor-pointer"
             drag="x"
             dragConstraints={{ left: 0, right: sliderWidth - 24 }}
-            dragElastic={0} // 👈 This removes excess elasticity
+            dragElastic={0}
             onDrag={handleDrag}
             style={{ x: (sliderValue / balance) * sliderWidth }}
           >

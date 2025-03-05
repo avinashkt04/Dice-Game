@@ -11,6 +11,7 @@ function generateRoll(serverSeed: string, clientSeed: string) {
 export async function POST(req: NextRequest) {
   const { betAmount, balance, clientSeed } = await req.json();
 
+  // validate balance
   if (balance === 0) {
     return NextResponse.json(
       { error: "Insufficient balance." },
@@ -18,6 +19,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // validate bet amount
   if (betAmount === 0) {
     return NextResponse.json(
       { error: "Please select a bet amount." },
@@ -25,7 +27,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // 🔹 Validate inputs
+  // validate inputs
   if (!clientSeed) {
     return NextResponse.json(
       { error: "Invalid input. Please try again." },
@@ -34,17 +36,19 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    // 🔹 Generate serverSeed and hashedServerSeed for this session
+    // generate serverSeed and hashedServerSeed 
     const serverSeed = crypto.randomBytes(16).toString("hex");
     const hashedServerSeed = crypto
       .createHash("sha256")
       .update(serverSeed)
       .digest("hex");
 
-    // 🔹 Generate a roll
+    // generate a roll
     const roll = generateRoll(serverSeed, clientSeed);
     let newBalance = balance;
     let message = "";
+
+    // if roll is greater than 3, player wins else player loses
     if (roll > 3) {
       newBalance += betAmount;
       message = "You win!";
@@ -53,12 +57,12 @@ export async function POST(req: NextRequest) {
       message = "You lose!";
     }
 
-    // 🔹 Return the result
+    // return 
     return NextResponse.json({
       roll,
-      message, // Send win/loss message
-      newBalance, // Send updated balance
-      hashedServerSeed, // Allow client to verify fairness after game ends
+      message, 
+      newBalance, 
+      hashedServerSeed, 
       serverSeed
     });
   } catch (error) {
